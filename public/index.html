@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YapToMe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --border: #334155;
+            --user-colors: #3b82f6, #ef4444, #22c55e, #f59e0b, #8b5cf6, #ec4899, #14b8a6, #f97316;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Poppins, 'Segoe UI', Tahoma, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .intro-section {
+            text-align: center;
+            max-width: 600px;
+            margin: 2rem auto 3rem;
+        }
+
+        .app-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .app-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-container,
+        .security-features,
+        .how-to-use {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: left;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--accent);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .security-features ul,
+        .how-to-use ol {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .security-features ul li {
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .how-to-use ol {
+            counter-reset: steps;
+        }
+
+        .how-to-use ol li {
+            margin-bottom: 0.75rem;
+            padding-left: 2rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .how-to-use ol li::before {
+            counter-increment: steps;
+            content: counter(steps);
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .chat-layout {
+            display: none;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+            background: var(--bg-secondary);
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        .sidebar {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-count {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .user-item {
+            padding: 0.5rem 0;
+            color: #ffffff !important;
+        }
+
+        .chat-area {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            scroll-behavior: smooth;
+            height: calc(100vh - 120px);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #messages::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        #messages::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
+            color: #ffffff !important;
+        }
+
+        .message.sent {
+            background: var(--accent);
+            color: var(--text-primary);
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+        }
+
+        .message.received {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .system-message {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+        }
+
+        .system-message.error {
+            color: #ef4444;
+            font-weight: 500;
+        }
+
+        .system-message.success {
+            color: #22c55e;
+            font-weight: 500;
+        }
+
+        .typing-indicator {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            padding: 0.5rem 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-style: italic;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            opacity: 0.9;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .typing-indicator:empty {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .input-area {
+            position: relative;
+            z-index: 11;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border);
+            padding: 0.75rem;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .send-button {
+            padding: 0 1.5rem;
+            background: var(--accent);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .send-button:hover {
+            opacity: 0.9;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+
+        .message-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+            font-size: 0.7rem;
+            opacity: 0.7;
+            color: var(--text-secondary);
+        }
+
+        .message-username {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .chat-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: flex;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: auto;
+                min-height: 40px;
+                padding: 0.5rem 1rem;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                z-index: 2;
+            }
+
+            .user-count {
+                margin: 0;
+                padding: 0;
+                border: none;
+            }
+
+            .user-list {
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 0.5rem;
+                padding: 0 0 0 1rem;
+                overflow-x: auto;
+                scrollbar-width: none;
+            }
+
+            .user-list::-webkit-scrollbar {
+                display: none;
+            }
+
+            .user-item {
+                padding: 0.25rem 0.75rem;
+                border: 1px solid var(--border);
+                border-radius: 1rem;
+                white-space: nowrap;
+            }
+
+            .chat-area {
+                padding-top: 40px;
+                padding-bottom: 90px;
+            }
+
+            #messages {
+                max-height: calc(100vh - 130px);
+            }
+
+            .message {
+                max-width: 85%;
+            }
+
+            .input-area {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 0.75rem;
+            }
+
+            .typing-indicator {
+                bottom: 60px;
+                padding: 0.5rem 1rem;
+            }
+
+            #messages {
+                padding-bottom: 2.5rem;
+            }
+        }
+
+        .dictionary-def {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            opacity: 0.8;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .word {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .pronunciation {
+            color: var(--text-secondary);
+            font-style: italic;
+            margin: 0 0.3rem;
+        }
+
+        .part-speech {
+            color: var(--accent);
+            font-style: italic;
+            margin-right: 0.5rem;
+        }
+
+        .definition {
+            color: var(--text-secondary);
+            margin-right: 0.5rem;
+        }
+
+        .example {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        @media (max-width: 480px) {
+            .dictionary-def {
+                max-width: 300px;
+                margin: 0 auto;
+                line-height: 1.6;
+            }
+        }
+
+        /* Update/add anchor tag styles */
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.2s;
+            position: relative;
+        }
+
+        a:hover {
+            opacity: 0.8;
+        }
+
+        /* Optional: add subtle underline animation on hover */
+        a::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.2s ease;
+        }
+
+        a:hover::after {
+            transform: scaleX(1);
+        }
+
+        /* For links in the open-source section specifically */
+        .open-source a {
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="intro-section">
+            <h1 class="app-title">Yap To Me</h1>
+            <p class="app-subtitle">Zero-Storage Secure Messaging</p>
+            <p class="dictionary-def">
+                <span class="word">yap</span>
+                <span class="pronunciation">/jæp/</span>
+                <span class="part-speech">verb</span>
+                <span class="definition">to talk continuously or indiscreetly;</span>
+                <br><span class="example">e.g "they were yapping about nothing in particular"</span>
+            </p>
+        </div>
+
+        <div id="create-room-form" class="form-container">
+            <input type="text" class="input-field" id="username" placeholder="Choose username" autocomplete="off">
+            <input type="password" class="input-field" id="password" placeholder="Room password">
+            <button class="button" onclick="createRoom()">Create Secure Room</button>
+        </div>
+
+        <div id="join-room-form" class="form-container" style="display: none;">
+            <input type="text" class="input-field" id="join-username" placeholder="Choose a username" autocomplete="off">
+            <input type="password" class="input-field" id="join-password" placeholder="Room password">
+            <button class="button" onclick="verifyPassword()">Join Room</button>
+        </div>
+
+        <div class="security-features">
+            <h3>Privacy First</h3>
+            <ul>
+                <li>No database - messages exist only in memory</li>
+                <li>Auto-deletion after 24h of inactivity</li>
+                <li>SSL/TLS encrypted communication</li>
+                <li>Zero data persistence - everything vanishes on server restart</li>
+            </ul>
+        </div>
+
+        <div class="how-to-use">
+            <h3>How to Use</h3>
+            <ol>
+                <li>Choose a username and set a room password</li>
+                <li>Share the generated room link and password with your contacts</li>
+                <li>They can join using the same password</li>
+                <li>You'll be notified when someone joins the room</li>
+                <li>Prior messages are not stored or rendered</li>
+            </ol>
+        </div>
+
+        <div class="open-source">
+            <p>This is an open source project.</p>
+            <a href="https://github.com/ahmdsr/SecureChat" target="_blank" rel="noopener noreferrer">
+                Host your own instance →
+            </a>
+        </div>
+    </div>
+
+    <div id="chat-container" class="chat-layout">
+        <div class="sidebar">
+            <div class="user-count">
+                <span id="user-count">0</span> Users Online
+            </div>
+            <ul class="user-list"></ul>
+        </div>
+        
+        <div class="chat-area">
+            <div id="messages" class="chat-messages"></div>
+            <div class="typing-indicator"></div>
+            <div class="input-area">
+                <div class="input-container">
+                    <input type="text" 
+                           id="message-input" 
+                           class="message-input" 
+                           placeholder="Type a message..." 
+                           onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()" class="send-button">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let currentRoomId = null;
+        const messageSound = new Audio('/message.mp3');
+        messageSound.load();
+        let unreadCount = 0;
+        let originalTitle = document.title;
+
+        // Check if we're joining an existing room
+        const roomId = window.location.pathname.slice(1);
+        if (roomId) {
+            document.getElementById('create-room-form').style.display = 'none';
+            document.getElementById('join-room-form').style.display = 'block';
+        }
+
+        async function createRoom() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!username || !password) {
+                alert('Username and password are required');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/create-room', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                window.history.pushState({}, '', `/${data.roomId}`);
+                joinRoom(data.roomId, username);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create room. Please try again.');
+            }
+        }
+
+        async function verifyPassword() {
+            const username = document.getElementById('join-username').value.trim();
+            const password = document.getElementById('join-password').value.trim();
+            const roomId = window.location.pathname.slice(1);
+            
+            if (!username || !password) {
+                alert('Username and password are required');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/verify-room', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomId, password, username })
+                });
+                
+                const data = await response.json();
+                if (!data.success) {
+                    alert(data.error || 'Failed to join room');
+                    return;
+                }
+                
+                joinRoom(roomId, username);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to verify room');
+            }
+        }
+
+        function joinRoom(roomId, username) {
+            currentRoomId = roomId;
+            
+            document.querySelector('.intro-section').style.display = 'none';
+            document.getElementById('create-room-form').style.display = 'none';
+            document.getElementById('join-room-form').style.display = 'none';
+            document.querySelector('.security-features').style.display = 'none';
+            document.querySelector('.how-to-use').style.display = 'none';
+            document.querySelector('.open-source').style.display = 'none';
+            
+            document.getElementById('chat-container').style.display = 'grid';
+            
+            socket.emit('join-room', { roomId, username });
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            
+            if (message && currentRoomId) {
+                socket.emit('chat-message', {
+                    roomId: currentRoomId,
+                    message: message
+                });
+                messageInput.value = '';
+            }
+        }
+
+        // Typing indicator
+        let typingTimeout;
+        document.getElementById('message-input').addEventListener('input', () => {
+            if (!typingTimeout) {
+                socket.emit('typing', currentRoomId);
+            }
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                socket.emit('stop-typing', currentRoomId);
+                typingTimeout = null;
+            }, 1000);
+        });
+
+        // Socket event handlers
+        window.addEventListener('focus', () => {
+            unreadCount = 0;
+            document.title = originalTitle;
+        });
+
+        const colors = [
+            '#3b82f6', // blue
+            '#ef4444', // red
+            '#22c55e', // green
+            '#f59e0b', // yellow
+            '#8b5cf6', // purple
+            '#ec4899', // pink
+            '#14b8a6', // teal
+            '#f97316'  // orange
+        ];
+
+        // Shuffle colors array when page loads
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Shuffle colors when page loads
+        const shuffledColors = shuffleArray([...colors]);
+        const userColors = new Map();
+
+        function getRandomColor(username) {
+            if (!userColors.has(username)) {
+                const color = shuffledColors[userColors.size % shuffledColors.length];
+                userColors.set(username, color);
+            }
+            return userColors.get(username);
+        }
+
+        socket.on('chat-message', (data) => {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${data.senderSocketId === socket.id ? 'sent' : 'received'}`;
+            
+            const messageContent = document.createElement('div');
+            messageContent.textContent = data.content;
+            
+            const messageInfo = document.createElement('div');
+            messageInfo.className = 'message-info';
+            
+            const username = document.createElement('span');
+            username.className = 'message-username';
+            username.textContent = data.sender;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            timeDiv.textContent = new Date(data.timestamp).toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messageInfo.appendChild(username);
+            messageInfo.appendChild(timeDiv);
+            messageElement.appendChild(messageContent);
+            messageElement.appendChild(messageInfo);
+            messagesDiv.appendChild(messageElement);
+            
+            if (data.senderSocketId !== socket.id) {
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+                messageSound.play().catch(() => {});
+                if (!document.hasFocus()) {
+                    unreadCount++;
+                    document.title = `(${unreadCount}) ${originalTitle}`;
+                }
+            }
+            
+            requestAnimationFrame(() => {
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        });
+
+        socket.on('user-joined', (data) => {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'system-message';
+            messageElement.textContent = data.message;
+            messagesDiv.appendChild(messageElement);
+            
+            requestAnimationFrame(() => {
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        });
+
+        socket.on('user-left', (data) => {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'system-message';
+            messageElement.textContent = data.message;
+            messagesDiv.appendChild(messageElement);
+            
+            requestAnimationFrame(() => {
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        });
+
+        socket.on('user-list', (data) => {
+            document.getElementById('user-count').textContent = data.users.length;
+            const userList = document.querySelector('.user-list');
+            userList.innerHTML = data.users
+                .map(username => `<li class="user-item">${username}</li>`)
+                .join('');
+        });
+
+        socket.on('user-typing', (data) => {
+            const typingDiv = document.querySelector('.typing-indicator');
+            typingDiv.textContent = data.isTyping ? `${data.username} is typing...` : '';
+        });
+
+        socket.on('disconnect', () => {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'system-message error';
+            messageElement.textContent = 'Disconnected from server. Attempting to reconnect...';
+            messagesDiv.appendChild(messageElement);
+        });
+
+        socket.on('reconnect', () => {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'system-message success';
+            messageElement.textContent = 'Reconnected to server!';
+            messagesDiv.appendChild(messageElement);
+        });
+
+        const colorSchemes = [
+            {
+                bgPrimary: '#13131a',    // midnight
+                bgSecondary: '#1d1d27',
+                textPrimary: '#ffffff',
+                textSecondary: '#a0a0b3',
+                accent: '#7c5dfa',
+                border: '#2d2d3d'
+            },
+            {
+                bgPrimary: '#0d1117',    // deep ocean
+                bgSecondary: '#161b22',
+                textPrimary: '#ffffff',
+                textSecondary: '#8b9bb4',
+                accent: '#3b82f6',
+                border: '#21262d'
+            },
+            {
+                bgPrimary: '#15121f',    // deep purple
+                bgSecondary: '#1e1a2b',
+                textPrimary: '#ffffff',
+                textSecondary: '#9d94b8',
+                accent: '#8b5cf6',
+                border: '#2a2445'
+            },
+            {
+                bgPrimary: '#111a1a',    // deep teal
+                bgSecondary: '#1a2626',
+                textPrimary: '#ffffff',
+                textSecondary: '#8bb4b4',
+                accent: '#06b6d4',
+                border: '#1f4545'
+            },
+            {
+                bgPrimary: '#1a1313',    // deep crimson
+                bgSecondary: '#261a1a',
+                textPrimary: '#ffffff',
+                textSecondary: '#b48b8b',
+                accent: '#ef4444',
+                border: '#451f1f'
+            }
+        ];
+
+        // Get random color scheme on page load
+        const randomScheme = colorSchemes[Math.floor(Math.random() * colorSchemes.length)];
+
+        // Apply the random color scheme to CSS variables
+        document.documentElement.style.setProperty('--bg-primary', randomScheme.bgPrimary);
+        document.documentElement.style.setProperty('--bg-secondary', randomScheme.bgSecondary);
+        document.documentElement.style.setProperty('--text-primary', randomScheme.textPrimary);
+        document.documentElement.style.setProperty('--text-secondary', randomScheme.textSecondary);
+        document.documentElement.style.setProperty('--accent', randomScheme.accent);
+        document.documentElement.style.setProperty('--border', randomScheme.border);
+    </script>
+</body>
+</html> 
